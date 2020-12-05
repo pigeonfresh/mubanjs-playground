@@ -1,0 +1,21 @@
+[data-component="cf-a1-heading"] {
+  display: flex;
+  flex-direction: column;
+
+  small {
+    font-size: 50%;
+  }
+
+  // Alignment
+  &.is-aligned-left {
+    align-items: flex-start;
+  }
+
+  &.is-aligned-center {
+    align-items: center;
+  }
+
+  &.is-aligned-right {
+    align-items: flex-end;
+  }
+}

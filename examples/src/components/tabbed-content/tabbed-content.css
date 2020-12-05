@@ -1,0 +1,8 @@
+[data-component="tabbed-content"] {
+  color: darkgray;
+  padding: 0 20px;
+}
+
+.tab-content {
+  max-width: 400px;
+}

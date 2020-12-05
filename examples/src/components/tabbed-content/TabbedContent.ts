@@ -1,0 +1,83 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+import { computed, ref } from '@vue/reactivity';
+import { defineComponent } from '../../../../src/lib/Component.Reactive';
+import { bindMap } from '../../../../src/lib/utils/bindings/bindingDefinitions';
+import { propType } from '../../../../src/lib/utils/props/propDefinitions';
+import { refCollection } from '../../../../src/lib/utils/refs/refDefinitions';
+import { classMap } from '../../../../src/lib/utils/template/classMap';
+import { html, unsafeHTML } from '../../../../src/lib/utils/template/mhtml';
+
+export const TabbedContent = defineComponent({
+  name: 'tabbed-content',
+  props: {
+    selectedIndex: propType.number.defaultValue(0),
+  },
+  refs: {
+    tabs: refCollection('tab'),
+    tabContentItems: refCollection('tab-content'),
+  },
+  setup({ props, refs }) {
+    const selectedIndex = ref(props.selectedIndex);
+
+    return [
+      ...bindMap(refs.tabs, (ref, index) => ({
+        css: computed(() => ({ active: index === selectedIndex.value })),
+        click: () => (selectedIndex.value = index),
+      })),
+      ...bindMap(refs.tabContentItems, (ref, index) => ({
+        style: computed(() => ({ display: index === selectedIndex.value ? 'block' : 'none' })),
+      })),
+    ];
+  },
+});
+
+type TabButtonProps = {
+  label: string;
+  index: number;
+  isActive?: boolean;
+};
+export const tabButton = ({ label, index, isActive }: TabButtonProps, ref?: string): string => html`
+  <li class="nav-item">
+    <button
+      class="nav-link ${classMap({ active: !!isActive })}"
+      data-ref=${ref}
+      data-index=${index}
+    >
+      ${label}
+    </button>
+  </li>
+`;
+
+type TabContentItemProps = {
+  content: string;
+  index: number;
+};
+
+export const tabContentItem = ({ content, index }: TabContentItemProps, ref?: string): string =>
+  html`<div class="tab-content" data-ref=${ref} data-index=${index}>${unsafeHTML(content)}</div>`;
+
+export type TabbedContentProps = {
+  items: Array<Omit<TabButtonProps & TabContentItemProps, 'index'>>;
+  selectedIndex?: number;
+};
+
+export const tabbedContent = (
+  { items, selectedIndex }: TabbedContentProps,
+  ref?: string,
+): string => html`
+  <div
+    data-component=${TabbedContent.displayName}
+    data-ref=${ref}
+    data-selected-index=${selectedIndex}
+  >
+    <ul class="nav nav-tabs">
+      ${items.map((item, index) => tabButton({ ...item, index }, 'tab'))}
+    </ul>
+    ${items.map((item, index) => tabContentItem({ ...item, index }, 'tab-content'))}
+  </div>
+`;
+
+export const meta = {
+  component: TabbedContent,
+  template: tabbedContent,
+};
